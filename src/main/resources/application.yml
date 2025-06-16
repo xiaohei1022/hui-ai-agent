@@ -1,6 +1,8 @@
 spring:
   application:
     name: hui-ai-agent
+  profiles:
+    default: local
 server:
   port: 8123
   servlet:

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: hui-ai-agent
+  ai:
+    dashscope:
+      api-key: sk-16418d9be95f466f8265cdf54dc69f0d
+      chat:
+        options:
+          model: qwen-plus
