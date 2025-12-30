@@ -3,10 +3,15 @@ package com.ximi.huiaiagent.demo.invoke;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
+import org.springframework.ai.chat.client.ChatClient;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * URL 介入阿里云百炼模型
+ *
+ */
 public class HttpAiInvoke {
     public static void main(String[] args) {
         // 替换为你的实际 API 密钥

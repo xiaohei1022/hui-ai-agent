@@ -3,7 +3,10 @@ spring:
     name: hui-ai-agent
   ai:
     dashscope:
-      api-key: sk-16418d9be95f466f8265cdf54dc69f0d
+      api-key: sk-4417bbca7ee5411c922cab66d91059f8
       chat:
         options:
           model: qwen-plus
+# searchApi
+search-api:
+  api-key: jNVa9KLzueFjEZ6Wk59kA6gu

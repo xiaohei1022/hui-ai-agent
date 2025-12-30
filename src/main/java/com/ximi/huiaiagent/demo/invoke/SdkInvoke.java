@@ -11,11 +11,13 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
+import org.springframework.ai.embedding.Embedding;
 
 /**
- * 阿里云灵积 AI 调用
+ * SDK介入 阿里云灵积 AI 调用
  */
 public class SdkInvoke {
+
     public static GenerationResult callWithMessage() throws ApiException, NoApiKeyException, InputRequiredException {
         Generation gen = new Generation();
         Message systemMsg = Message.builder()
@@ -36,6 +38,7 @@ public class SdkInvoke {
                 .build();
         return gen.call(param);
     }
+
     public static void main(String[] args) {
         try {
             GenerationResult result = callWithMessage();
