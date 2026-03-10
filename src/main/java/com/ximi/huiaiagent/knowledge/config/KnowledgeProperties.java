@@ -15,4 +15,6 @@ public class KnowledgeProperties {
     private List<String> supportedTypes;
     private int chunkSize = 500;
     private int chunkOverlap = 50;
+    private String uploadDir = "./uploads";
+    private int fileRetentionDays = 30;
 }

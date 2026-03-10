@@ -34,6 +34,19 @@
           <span class="btn-icon">→</span>
         </div>
       </div>
+
+      <div class="app-card" @click="navigateTo('/knowledge')">
+        <div class="card-glow"></div>
+        <div class="app-icon knowledge-icon">📚</div>
+        <div class="app-info">
+          <div class="app-title">知识库管理</div>
+          <div class="app-desc">文档上传与知识库同步</div>
+        </div>
+        <div class="app-button">
+          <span class="btn-text">立即体验</span>
+          <span class="btn-icon">→</span>
+        </div>
+      </div>
     </div>
     
     <div class="cyber-circles">
@@ -270,6 +283,11 @@ const navigateTo = (path) => {
 .robot-icon {
   background: linear-gradient(135deg, #00b2ff, #4f56ff);
   box-shadow: 0 0 20px rgba(0, 178, 255, 0.5);
+}
+
+.knowledge-icon {
+  background: linear-gradient(135deg, #00ff88, #00cc6a);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
 }
 
 .app-info {

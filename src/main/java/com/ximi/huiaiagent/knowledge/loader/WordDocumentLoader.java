@@ -44,9 +44,12 @@ public class WordDocumentLoader implements DocumentLoader {
             metadata.put("filename", file.getOriginalFilename());
             metadata.put("fileType", "docx");
             metadata.put("paragraphCount", paragraphs.size());
-            
+
+            String docId = java.util.UUID.nameUUIDFromBytes(
+                    (file.getOriginalFilename() + System.currentTimeMillis()).getBytes()
+            ).toString();
             Document doc = Document.builder()
-                    .id(file.getOriginalFilename())
+                    .id(docId)
                     .text(fullText.toString())
                     .metadata(metadata)
                     .build();

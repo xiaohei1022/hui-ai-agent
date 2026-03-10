@@ -34,4 +34,7 @@ public class DocumentMeta {
 
     @Column(name = "file_id", unique = true)
     private String fileId;
+
+    @Column(name = "preview_html", columnDefinition = "TEXT")
+    private String previewHtml;
 }

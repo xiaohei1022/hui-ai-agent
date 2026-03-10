@@ -27,6 +27,15 @@ const routes = [
       title: 'AI超级智能体 - 展岩AI超级智能体应用平台',
       description: 'AI超级智能体是展岩AI超级智能体应用平台的全能助手，能解答各类专业问题，提供精准建议和解决方案'
     }
+  },
+  {
+    path: '/knowledge',
+    name: 'Knowledge',
+    component: () => import('../views/Knowledge.vue'),
+    meta: {
+      title: '知识库管理 - 展岩AI超级智能体应用平台',
+      description: '知识库管理 - 文档上传与同步'
+    }
   }
 ]
 

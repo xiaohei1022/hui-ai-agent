@@ -56,9 +56,12 @@ public class ExcelDocumentLoader implements DocumentLoader {
             metadata.put("filename", file.getOriginalFilename());
             metadata.put("fileType", "xlsx");
             metadata.put("sheetCount", sheetCount);
-            
+            String docId = java.util.UUID.nameUUIDFromBytes(
+                    (file.getOriginalFilename() + System.currentTimeMillis()).getBytes()
+            ).toString();
+
             Document doc = Document.builder()
-                    .id(file.getOriginalFilename())
+                    .id(docId)
                     .text(fullText.toString())
                     .metadata(metadata)
                     .build();
@@ -78,18 +81,21 @@ public class ExcelDocumentLoader implements DocumentLoader {
             return null;
         }
         
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> {
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    yield cell.getDateCellValue().toString();
-                } else {
-                    yield String.valueOf(cell.getNumericCellValue());
-                }
+        CellType cellType = cell.getCellType();
+        if (cellType == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cellType == CellType.NUMERIC) {
+            if (DateUtil.isCellDateFormatted(cell)) {
+                return cell.getDateCellValue().toString();
+            } else {
+                return String.valueOf(cell.getNumericCellValue());
             }
-            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
-            case FORMULA -> cell.getCellFormula();
-            default -> "";
-        };
+        } else if (cellType == CellType.BOOLEAN) {
+            return String.valueOf(cell.getBooleanCellValue());
+        } else if (cellType == CellType.FORMULA) {
+            return cell.getCellFormula();
+        } else {
+            return "";
+        }
     }
 }

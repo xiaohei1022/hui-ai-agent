@@ -48,9 +48,12 @@ public class PdfDocumentLoader implements DocumentLoader {
             metadata.put("filename", file.getOriginalFilename());
             metadata.put("fileType", "pdf");
             metadata.put("pageCount", numberOfPages);
-            
+            String docId = java.util.UUID.nameUUIDFromBytes(
+                    (file.getOriginalFilename() + System.currentTimeMillis()).getBytes()
+            ).toString();
+
             Document document = Document.builder()
-                    .id(file.getOriginalFilename())
+                    .id(docId)
                     .text(fullText.toString())
                     .metadata(metadata)
                     .build();

@@ -86,16 +86,48 @@
             </thead>
             <tbody>
               <tr v-for="doc in documents" :key="doc.id">
-                <td>{{ doc.fileName }}</td>
+                <td>
+                  <a
+                    href="javascript:void(0)"
+                    class="file-link"
+                    @click="previewDocument(doc.id, doc.fileName)"
+                    :title="doc.fileName"
+                  >
+                    <span class="file-icon">{{ getFileIcon(doc.fileType) }}</span>
+                    <span class="file-name-text">{{ doc.fileName }}</span>
+                  </a>
+                </td>
                 <td><span class="badge">{{ doc.fileType }}</span></td>
                 <td>{{ doc.chunkCount }}</td>
                 <td>{{ formatDate(doc.createdAt) }}</td>
                 <td>
+                  <button class="btn-preview" @click="previewDocument(doc.id, doc.fileName)">预览</button>
+                  <button class="btn-download" @click="downloadDocument(doc.id, doc.fileName)">下载</button>
                   <button class="btn-delete" @click="deleteDocument(doc.id)">删除</button>
                 </td>
               </tr>
             </tbody>
           </table>
+          
+          <div class="pagination">
+            <button 
+              class="btn-page" 
+              @click="loadPage(currentPage - 1)"
+              :disabled="currentPage === 0"
+            >
+              上一页
+            </button>
+            <span class="page-info">
+              第 {{ currentPage + 1 }} / {{ totalPages }} 页 (共 {{ total }} 条)
+            </span>
+            <button 
+              class="btn-page" 
+              @click="loadPage(currentPage + 1)"
+              :disabled="currentPage >= totalPages - 1"
+            >
+              下一页
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -119,6 +151,10 @@ const selectedFiles = ref([])
 const uploadResult = ref(null)
 const syncResult = ref(null)
 const basePath = ref('')
+const currentPage = ref(0)
+const totalPages = ref(0)
+const total = ref(0)
+const pageSize = ref(20)
 
 const fileInput = ref(null)
 
@@ -130,16 +166,23 @@ onMounted(() => {
 async function loadDocuments() {
   loading.value = true
   try {
-    const response = await fetch(`${API_BASE}/knowledge/list`)
+    const response = await fetch(`${API_BASE}/knowledge/list?page=${currentPage.value}&size=${pageSize.value}`)
     const data = await response.json()
     if (data.success) {
       documents.value = data.data || []
+      total.value = data.total || 0
+      totalPages.value = data.totalPages || 0
     }
   } catch (error) {
     console.error('加载文档列表失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+function loadPage(page) {
+  currentPage.value = page
+  loadDocuments()
 }
 
 async function loadConfig() {
@@ -234,6 +277,42 @@ async function deleteDocument(id) {
   }
 }
 
+async function previewDocument(id, fileName) {
+  try {
+    const response = await fetch(`${API_BASE}/knowledge/${id}/preview`)
+    const html = await response.text()
+
+    const previewWindow = window.open('', '_blank', 'width=1000,height=800,left=100,top=50')
+    if (previewWindow) {
+      previewWindow.document.write(html)
+      previewWindow.document.close()
+      previewWindow.document.title = fileName + ' - 预览'
+    }
+  } catch (error) {
+    alert(`预览失败: ${error.message}`)
+  }
+}
+
+async function downloadDocument(id, fileName) {
+  try {
+    const response = await fetch(`${API_BASE}/knowledge/${id}/download`)
+    if (!response.ok) {
+      throw new Error(`下载失败: ${response.status} ${response.statusText}`)
+    }
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName || `document-${id}`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  } catch (error) {
+    alert(`下载失败: ${error.message}`)
+  }
+}
+
 function formatFileSize(bytes) {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -244,6 +323,21 @@ function formatDate(dateStr) {
   if (!dateStr) return '-'
   const date = new Date(dateStr)
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+}
+
+function getFileIcon(fileType) {
+  switch (fileType?.toLowerCase()) {
+    case 'pdf':
+      return '📕'
+    case 'docx':
+      return '📝'
+    case 'xlsx':
+      return '📊'
+    case 'md':
+      return '📖'
+    default:
+      return '📄'
+  }
 }
 </script>
 
@@ -501,6 +595,46 @@ td {
   font-size: 0.9rem;
 }
 
+.file-link {
+  color: #00f0ff;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  max-width: 250px;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.file-icon {
+  margin-right: 6px;
+  font-size: 0.9em;
+  flex-shrink: 0;
+}
+
+.file-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.file-link:hover {
+  text-decoration: none;
+  background: rgba(0, 240, 255, 0.25);
+  color: #00ffff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  transform: translateX(3px);
+}
+
+.file-link:active {
+  transform: translateX(1px);
+}
+
 .badge {
   display: inline-block;
   padding: 3px 10px;
@@ -509,6 +643,36 @@ td {
   border-radius: 12px;
   font-size: 0.8rem;
   text-transform: uppercase;
+}
+
+.btn-preview {
+  padding: 6px 15px;
+  background: rgba(0, 178, 255, 0.2);
+  color: #00b2ff;
+  border: 1px solid rgba(0, 178, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-right: 8px;
+}
+
+.btn-preview:hover {
+  background: rgba(0, 178, 255, 0.4);
+}
+
+.btn-download {
+  padding: 6px 15px;
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-right: 8px;
+}
+
+.btn-download:hover {
+  background: rgba(0, 255, 136, 0.4);
 }
 
 .btn-delete {
@@ -523,6 +687,34 @@ td {
 
 .btn-delete:hover {
   background: rgba(255, 68, 68, 0.4);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.btn-page {
+  padding: 8px 20px;
+  background: linear-gradient(90deg, #0088ff, #00b2ff);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-page:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {

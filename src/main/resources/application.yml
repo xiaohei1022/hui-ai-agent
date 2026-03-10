@@ -3,10 +3,38 @@ spring:
     name: hui-ai-agent
   profiles:
     default: local
+  datasource:
+    url: jdbc:postgresql://172.19.139.219:5432/vector_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        dimensions: 1536
+
+# knowledge base config
+knowledge:
+  base-path: D:/xiaohei/XIAOHEI
+  supported-types: pdf,docx,xlsx,md
+  chunk-size: 500
+  chunk-overlap: 50
+  upload-dir: ./uploads
+  file-retention-days: 30
+
 server:
   port: 8123
   servlet:
     context-path: /api
+
 # springdoc-openapi
 springdoc:
   swagger-ui:
@@ -19,6 +47,7 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.ximi.huiaiagent.controller
+
 # knife4j
 knife4j:
   enable: true
